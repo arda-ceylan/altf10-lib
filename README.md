@@ -27,7 +27,7 @@ Follow these steps to develop or run this project on your computer:
 
 ### 1. Clone the Project
 ```bash
-git clone [https://github.com/arda-ceylan/altf10-library.git](https://github.com/arda-ceylan/altf10-library.git)
+git clone https://github.com/arda-ceylan/altf10-library.git
 cd altf10-library
 ```
 
@@ -49,7 +49,7 @@ npm run electron:build
 ```
 
 ## ⚙️ How It Works? (Technical Detail)
-**Thumbnail Generation **
+**Thumbnail Generation**
 Traditional methods using FFmpeg often crashed with "Code 69" or "Heap Corruption" errors, especially with AV1 encoded game recordings containing corrupt headers.
 
 This project implements a **"Frontend Capture"** method:
