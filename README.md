@@ -29,20 +29,24 @@ Follow these steps to develop or run this project on your computer:
 ```bash
 git clone [https://github.com/YOUR_USERNAME/altf10-library.git](https://github.com/YOUR_USERNAME/altf10-library.git)
 cd altf10-library
+```
 
 ### 2. Install Dependencies
 ```bash
 npm install
+```
 
 ### 3. Start in Developer Mode
 Starts both the React server and the Electron window simultaneously.
 ```bash
 npm run electron:dev
+```
 
 ### 4. Build the Application
 Creates an .exe file for Windows.
 ```bash
 npm run electron:dev
+```
 
 ## ⚙️ How It Works? (Technical Detail)
 **Thumbnail Generation **
@@ -87,6 +91,7 @@ altf10-library/
 ├── electron.js          # Electron Main Process (FS, IPC, Config)
 ├── package.json         # Scripts and dependencies
 └── README.md            # Documentation
+```
 
 ## 📝 License
 This project is open-source and available under the MIT License.
