@@ -1,0 +1,387 @@
+/* --- TEMEL AYARLAR --- */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #121212;
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  user-select: none;
+  overflow: hidden; /* Sayfa taşmasını engelle */
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* --- ANA BAŞLIK (HEADER) --- */
+.app-header {
+  background-color: #1e1e1e;
+  height: 60px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Sağa ve sola yay */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  z-index: 20;
+  flex-shrink: 0;
+  gap: 20px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 20px;
+  text-align: center; /* Başlık hala ortada olsun istiyorsan absolute yapabiliriz ama böyle de şık durur */
+  color: #f0f0f0;
+  letter-spacing: 1px;
+  /* Başlığı tam ortalamak istersen aşağıdakini aç: */
+  /* position: absolute; left: 50%; transform: translateX(-50%); */
+}
+
+/* --- ORTAK GERİ BUTONU STİLİ --- */
+.back-btn {
+  background: transparent;
+  border: 1px solid #555;
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background-color: #333;
+  border-color: #fff;
+}
+
+/* --- İÇERİK ALANI (FULL SCREEN FIX) --- */
+.content {
+  flex: 1;
+  padding: 20px; /* Kenar boşluğu */
+  overflow-y: auto; /* Dikey kaydırma */
+  width: 100%;
+  box-sizing: border-box; /* Padding genişliğe dahil olsun */
+}
+
+/* --- KATEGORİ IZGARASI --- */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 25px; /* Boşluğu biraz artırdık ferah olsun */
+  width: 100%;
+  /* alignItems'ı sildik, varsayılan (stretch) kalsın ki hepsi eşit boyda olsun */
+}
+
+.category-card {
+  background-color: #252525;
+  border-radius: 12px;
+  padding: 30px 20px;
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* İçeriği dikeyde ortala */
+  
+  cursor: pointer;
+  border: 1px solid #333;
+  transition: transform 0.2s, background 0.2s, border-color 0.2s;
+  
+  /* DEĞİŞİKLİK: Sabit oran yerine minimum yükseklik veriyoruz */
+  min-height: 200px; 
+  height: 100%; /* Satırdaki en uzun kutuya ayak uydurur */
+  box-sizing: border-box;
+}
+
+.category-card h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: #eee;
+  text-align: center;
+  line-height: 1.4;
+  
+  /* KISALTMA KODLARINI SİLDİK (Line-clamp vb.) */
+  word-wrap: break-word; /* Çok uzun kelimeleri alta at */
+  width: 100%;
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+  background-color: #333;
+  border-color: #0078d4;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.folder-icon {
+  font-size: 55px; /* İkonu çok az küçülttük ki yazıya yer kalsın */
+  margin-bottom: 20px;
+  color: #ffd700;
+  flex-shrink: 0;
+}
+
+/* --- VİDEO IZGARASI --- */
+.video-grid {
+  display: grid;
+  /* Videolar ekranı tam kaplasın */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.video-card {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #333;
+  transition: transform 0.2s;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.video-card:hover {
+  transform: scale(1.02);
+  z-index: 5;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  border-color: #0078d4;
+}
+
+.thumb-wrapper {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: #000;
+  position: relative;
+}
+
+.video-thumbnail, .preview-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-info {
+  padding: 12px;
+  background: #252525;
+  color: #ddd;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.edit-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.video-card:hover .edit-btn {
+  opacity: 1;
+}
+
+/* --- FULL SCREEN PLAYER (YENİ DÜZEN) --- */
+.player-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- FULL SCREEN PLAYER ÜST BAR (YENİ GRADIENT STİLİ) --- */
+.player-header {
+  height: 80px; /* Biraz daha geniş alan */
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  
+  /* SİHİRLİ KISIM: Siyah'tan Şeffafa geçiş */
+  background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+  
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2001;
+  box-sizing: border-box;
+  
+  /* Yazıların video üzerinde okunabilmesi için gölge */
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  pointer-events: none; /* Tıklamaları videoya geçirir (Buton hariç) */
+}
+
+/* Geri tuşu ve Başlık tıklanabilir kalsın */
+.player-header .back-btn, 
+.player-header h1 {
+  pointer-events: auto;
+}
+
+/* Başlık stili güncellemesi (App.jsx içindeki inline stili buraya taşıdık daha temiz olsun) */
+.player-header h1 {
+  color: white;
+  flex: 1;
+  text-align: center;
+  font-size: 18px;
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.full-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Videoyu ekrana sığdır (Kesme yapma) */
+}
+
+/* --- MODAL --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+.modal-box {
+  background: #2a2a2a;
+  padding: 25px;
+  border-radius: 10px;
+  width: 450px;
+  border: 1px solid #444;
+}
+.modal-input {
+  width: 100%;
+  padding: 12px;
+  margin: 15px 0;
+  background: #151515;
+  border: 1px solid #444;
+  color: #fff;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.btn-save { background: #0078d4; color: #fff; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;}
+.btn-cancel { background: #444; color: #fff; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;}
+.modal-error { color: #ff6b6b; margin-top: 10px; font-size: 14px; }
+
+/* Full Screen Resim */
+.full-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Resmi kesmeden sığdır */
+  user-select: none;
+  pointer-events: none; /* Resim sürüklenmesin */
+}
+
+/* --- YOL SEÇİCİ (SAĞ TARAF) --- */
+.path-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #111;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #333;
+}
+
+.clear-cache-btn {
+  background: #333;
+  color: #ccc;
+  border: 1px solid #444; /* Çerçeve ekledik */
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-cache-btn:hover {
+  background: #4a1818; /* Hafif kırmızı arka plan */
+  color: #ff6b6b;      /* Kırmızı ikon */
+  border-color: #ff6b6b;
+}
+
+/* Mevcut butonları da hizalı tutmak için ufak ayar */
+.path-selector button {
+  height: 30px; /* Buton yükseklikleri eşit olsun */
+  min-width: 35px;
+}
+
+.current-path {
+  font-size: 12px;
+  color: #888;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.change-folder-btn {
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.change-folder-btn:hover {
+  background: #0078d4;
+}
+
+/* --- BOŞ DURUM MESAJLARI (EMPTY STATE) --- */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* Tüm alanı kapla */
+  color: #666; /* Silik gri renk */
+  text-align: center;
+  margin-top: 50px;
+}
+
+.empty-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  font-size: 24px;
+  margin: 0 0 10px 0;
+  color: #ccc;
+}
+
+.empty-state p {
+  font-size: 16px;
+  max-width: 400px;
+  line-height: 1.5;
+}
