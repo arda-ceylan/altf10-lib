@@ -96,3 +96,6 @@ altf10-library/
 This project is open-source and available under the MIT License.
 
 ## 🖼️ Some Screenshots
+![Main Screen](assets/ss.png)
+
+![Sub Category](assets/ss2.png)

@@ -2,17 +2,16 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const { spawn } = require('child_process'); 
 const os = require('os');
 
-// ▼▼▼ CONFIG (AYAR) SİSTEMİ ▼▼▼
+// CONFIG SYSTEM
 const userDataPath = app.getPath('userData');
 const configPath = path.join(userDataPath, 'config.json');
 
-// Varsayılan kütüphane yolu (İlk açılış için)
+// Default library path (Fallback)
 let currentLibraryPath = path.join(os.homedir(), 'Videos'); 
 
-// Ayarları Yükle
+// Load Config
 function loadConfig() {
   try {
     if (fs.existsSync(configPath)) {
@@ -22,44 +21,30 @@ function loadConfig() {
         currentLibraryPath = config.libraryPath;
       }
     }
-  } catch (e) { console.error("Config yüklenemedi:", e); }
+  } catch (e) { console.error("Config load error:", e); }
 }
 
-// Ayarları Kaydet
+// Save Config
 function saveConfig() {
   try {
     fs.writeFileSync(configPath, JSON.stringify({ libraryPath: currentLibraryPath }));
-  } catch (e) { console.error("Config kaydedilemedi:", e); }
+  } catch (e) { console.error("Config save error:", e); }
 }
 
-// Program başlarken ayarları oku
+// Load config on startup
 loadConfig();
 
-// --- LOGLAMA ---
-const logPath = path.join(os.homedir(), 'Desktop', 'altf10_debug_log.txt');
-const log = (message) => {
-  /* Loglama kodları aynı kalabilir veya kaldırabilirsin */
-};
-
-// --- FFMPEG ---
-let ffmpegPath;
-try {
-  ffmpegPath = require('ffmpeg-static');
-  if (ffmpegPath.includes('app.asar')) {
-    ffmpegPath = ffmpegPath.replace('app.asar', 'app.asar.unpacked');
-  }
-} catch (err) {}
-
-// Cache Yolu
+// CONSTANTS & PATHS
 const CACHE_PATH = path.join(userDataPath, 'thumbnails');
 if (!fs.existsSync(CACHE_PATH)) fs.mkdirSync(CACHE_PATH, { recursive: true });
 
 let mainWindow; 
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
-    title: "AltF10 Kütüphanesi",
+    title: "AltF10 Library",
     autoHideMenuBar: true,
     icon: path.join(__dirname, 'icon.ico'),
     webPreferences: {
@@ -79,28 +64,47 @@ function createWindow() {
   mainWindow.show();
 }
 
-// ▼▼▼ YENİ: KLASÖR SEÇME İŞLEMLERİ ▼▼▼
+// IPC HANDLERS
 
-// 1. Mevcut yolu gönder
+// 1. Get Current Library Path
 ipcMain.handle('get-library-path', () => currentLibraryPath);
 
-// 2. Yeni klasör seç ve kaydet
+// 2. Select New Folder
 ipcMain.handle('select-folder', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openDirectory'],
-    title: 'Kütüphane Klasörünü Seç'
+    title: 'Select Library Folder'
   });
 
   if (!result.canceled && result.filePaths.length > 0) {
     currentLibraryPath = result.filePaths[0];
-    saveConfig(); // Yeni yolu kaydet
+    saveConfig(); 
     return currentLibraryPath;
   }
   return null;
 });
 
-// --- DİĞER FONKSİYONLAR (Artık currentLibraryPath kullanıyor) ---
+// 3. Clear Cache
+ipcMain.handle('clear-thumbnail-cache', async () => {
+  try {
+    if (fs.existsSync(CACHE_PATH)) {
+      const files = fs.readdirSync(CACHE_PATH);
+      // Only delete .jpg files for safety
+      for (const file of files) {
+        if (file.endsWith('.jpg')) {
+          fs.unlinkSync(path.join(CACHE_PATH, file));
+        }
+      }
+      return { success: true };
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Cache clear error:", error);
+    return { success: false, error: error.message };
+  }
+});
 
+// 4. Get Categories (Subfolders)
 ipcMain.handle('get-categories', async () => {
   if (!fs.existsSync(currentLibraryPath)) return [];
   return fs.readdirSync(currentLibraryPath, { withFileTypes: true })
@@ -108,6 +112,7 @@ ipcMain.handle('get-categories', async () => {
            .map(d => d.name);
 });
 
+// 5. Get Videos in Category
 ipcMain.handle('get-videos', async (event, categoryName) => {
   const categoryPath = path.join(currentLibraryPath, categoryName);
   if (!fs.existsSync(categoryPath)) return [];
@@ -119,7 +124,7 @@ ipcMain.handle('get-videos', async (event, categoryName) => {
     const fullPath = path.join(categoryPath, file);
     const fileUrl = `file://${fullPath.replace(/\\/g, '/')}`;
     
-    // Thumbnail yolu (Basit: dosyaadi.ext.jpg)
+    // Check if thumbnail exists
     const thumbPath = path.join(CACHE_PATH, file + '.jpg');
     const thumbUrl = fs.existsSync(thumbPath) ? `file://${thumbPath.replace(/\\/g, '/')}` : null;
 
@@ -132,6 +137,7 @@ ipcMain.handle('get-videos', async (event, categoryName) => {
   }).filter(Boolean);
 });
 
+// 6. Save Thumbnail (Received from Frontend)
 ipcMain.handle('save-thumbnail-from-browser', async (event, { fileName, base64Data }) => {
   try {
     const data = base64Data.replace(/^data:image\/\w+;base64,/, "");
@@ -144,7 +150,7 @@ ipcMain.handle('save-thumbnail-from-browser', async (event, { fileName, base64Da
   }
 });
 
-// Rename (İnatçı Mod)
+// 7. Rename File (With Lock Breaking Logic)
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 ipcMain.handle('rename-file', async (event, { categoryName, oldName, newName }) => {
     try {
@@ -154,11 +160,12 @@ ipcMain.handle('rename-file', async (event, { categoryName, oldName, newName }) 
         const finalNewName = newName.replace(ext, '') + ext;
         const newPath = path.join(dirPath, finalNewName);
         
+        // Retry mechanism for busy files
         for (let i = 0; i < 10; i++) { 
           try { 
             await fs.promises.rename(oldPath, newPath); 
             
-            // Eğer thumbnail varsa onun da adını değiştir ki kaybolmasın
+            // Rename thumbnail if exists
             const oldThumb = path.join(CACHE_PATH, oldName + '.jpg');
             const newThumb = path.join(CACHE_PATH, finalNewName + '.jpg');
             if (fs.existsSync(oldThumb)) {
@@ -172,28 +179,8 @@ ipcMain.handle('rename-file', async (event, { categoryName, oldName, newName }) 
             else throw error; 
           }
         }
-        throw new Error("Dosya kilitli (Program veya başka bir şey kullanıyor).");
+        throw new Error("FILE_LOCKED");
     } catch (error) { return { success: false, error: error.message }; }
-});
-
-ipcMain.handle('clear-thumbnail-cache', async () => {
-  try {
-    if (fs.existsSync(CACHE_PATH)) {
-      const files = fs.readdirSync(CACHE_PATH);
-      
-      // Sadece .jpg dosyalarını sil (Güvenlik önlemi)
-      for (const file of files) {
-        if (file.endsWith('.jpg')) {
-          fs.unlinkSync(path.join(CACHE_PATH, file));
-        }
-      }
-      return { success: true };
-    }
-    return { success: true }; // Klasör yoksa zaten temizdir
-  } catch (error) {
-    console.error("Cache temizleme hatası:", error);
-    return { success: false, error: error.message };
-  }
 });
 
 app.whenReady().then(createWindow);

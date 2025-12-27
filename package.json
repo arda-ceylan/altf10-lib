@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "main": "electron.js",
-  "description": "AltF10 Kütüphanesi",
+  "description": "AltF10 Library",
   "author": "arda-ceylan",
   "scripts": {
     "dev": "vite",
@@ -36,7 +36,7 @@
   },
   "build": {
     "appId": "com.weilan.nvapp",
-    "productName": "AltF10 Kütüphanesi",
+    "productName": "AltF10 Library",
     "directories": {
       "output": "release",
       "buildResources": "build"

@@ -3,31 +3,82 @@ import './App.css';
 
 const { ipcRenderer } = window.require ? window.require('electron') : { ipcRenderer: null };
 
+// TRANSLATION DICTIONARY
+const TRANSLATIONS = {
+  tr: {
+    appTitle: "AltF10 Kütüphanesi",
+    back: "← Geri",
+    changeFolder: "📂 Değiştir",
+    clearCacheTitle: "Önbelleği Temizle",
+    catNotFound: "Kategori Bulunamadı",
+    catNotFoundDesc: "Seçilen konumda herhangi bir klasör bulunamadı.",
+    folderEmptyTitle: "Bu Klasör Boş",
+    folderEmptyDesc: "klasöründe hiç video veya resim bulunamadı.",
+    renameTitle: "Yeniden Adlandır",
+    cancel: "İptal",
+    save: "Kaydet",
+    saving: "Kaydediliyor...",
+    warning: "Dikkat",
+    cacheWarning: "Tüm önizleme resimleri (thumbnail) silinecek ve videolara girdiğinde baştan oluşturulacak. Onaylıyor musun?",
+    confirmClear: "Evet, Temizle",
+    selectFolder: "Lütfen sağ üstten video klasörünüzü seçin.",
+    fileLocked: "Dosya şu an kilitli. Lütfen dosyayı kullanan diğer programları kapatın."
+  },
+  en: {
+    appTitle: "AltF10 Library",
+    back: "← Back",
+    changeFolder: "📂 Change",
+    clearCacheTitle: "Clear Cache",
+    catNotFound: "No Categories Found",
+    catNotFoundDesc: "No folders were found in the selected path.",
+    folderEmptyTitle: "Folder is Empty",
+    folderEmptyDesc: "No videos or images found in",
+    renameTitle: "Rename File",
+    cancel: "Cancel",
+    save: "Save",
+    saving: "Saving...",
+    warning: "Warning",
+    cacheWarning: "All thumbnail images will be deleted and regenerated when you enter a folder. Do you confirm?",
+    confirmClear: "Yes, Clear",
+    selectFolder: "Please select your video folder from the top right.",
+    fileLocked: "File is locked. Please close other programs using this file."
+  }
+};
+
 function App() {
+  // --- STATE DEFINITIONS ---
   const [view, setView] = useState('categories');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [libraryPath, setLibraryPath] = useState('');
   
+  // Language State (Default: Turkish)
+  const [lang, setLang] = useState(() => localStorage.getItem('appLanguage') || 'en');
+  const t = TRANSLATIONS[lang]; // Shortcut for current language text
+
   const [categories, setCategories] = useState([]);
   const [videos, setVideos] = useState([]);
   
   const [hoveredVideo, setHoveredVideo] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null); 
   
+  // Modals
   const [renameModal, setRenameModal] = useState({ isOpen: false, video: null, newName: '', isSaving: false, error: null });
   const [cacheModal, setCacheModal] = useState(false);
 
+  // Hidden Workers
   const hiddenVideoRef = useRef(null);
   const hiddenCanvasRef = useRef(null);
   const [processingQueue, setProcessingQueue] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const hoverTimeout = useRef(null); 
 
+  // Volume Memory
   const [volume, setVolume] = useState(() => {
     const saved = localStorage.getItem('appVolume');
     return saved !== null ? parseFloat(saved) : 0.5;
   });
 
+  // --- INITIALIZATION ---
   useEffect(() => {
     if (ipcRenderer) {
       ipcRenderer.invoke('get-library-path').then(path => {
@@ -41,6 +92,13 @@ function App() {
     ipcRenderer.invoke('get-categories').then(setCategories).catch(console.error);
   };
 
+  // --- LANGUAGE HANDLER ---
+  const changeLanguage = (selectedLang) => {
+    setLang(selectedLang);
+    localStorage.setItem('appLanguage', selectedLang);
+  };
+
+  // --- FOLDER & NAVIGATION ---
   const handleChangeFolder = async () => {
     if (ipcRenderer) {
       const newPath = await ipcRenderer.invoke('select-folder');
@@ -75,6 +133,7 @@ function App() {
     }
   };
 
+  // --- CACHE CLEARING ---
   const confirmClearCache = async () => {
     setCacheModal(false);
     if (ipcRenderer) {
@@ -93,6 +152,7 @@ function App() {
     }
   };
 
+  // --- MEDIA PLAYER HANDLERS ---
   const handleMediaClick = (media) => setSelectedVideo(media);
   const closePlayer = () => setSelectedVideo(null);
   const handleVolumeChange = (e) => {
@@ -100,6 +160,7 @@ function App() {
     localStorage.setItem('appVolume', e.target.volume);
   };
 
+  // --- HOVER PERFORMANCE ---
   const handleMouseEnter = (index) => {
     hoverTimeout.current = setTimeout(() => setHoveredVideo(index), 400); 
   };
@@ -108,6 +169,7 @@ function App() {
     setHoveredVideo(null);
   };
 
+  // --- THUMBNAIL WORKER ---
   useEffect(() => {
     if (processingQueue.length > 0 && !isProcessing) {
       setIsProcessing(true);
@@ -141,6 +203,7 @@ function App() {
     }
   };
 
+  // --- RENAMING LOGIC ---
   const openRenameModal = (e, video) => {
     e.stopPropagation();
     setHoveredVideo(null);
@@ -157,35 +220,44 @@ function App() {
     const { video, newName } = renameModal;
     if (!newName.trim()) return;
     setRenameModal(prev => ({ ...prev, isSaving: true }));
+    
     const result = await ipcRenderer.invoke('rename-file', { categoryName: selectedCategory, oldName: video.ad, newName: newName });
+
     if (result.success) {
       const fresh = await ipcRenderer.invoke('get-videos', selectedCategory);
       setVideos(fresh);
       setRenameModal(prev => ({ ...prev, isOpen: false }));
     } else {
-      setRenameModal(prev => ({ ...prev, isSaving: false, error: result.error }));
+      let errorMsg = result.error;
+
+      if (errorMsg.includes("FILE_LOCKED") || errorMsg.includes("EBUSY")) {
+        errorMsg = t.fileLocked;
+      }
+
+      setRenameModal(prev => ({ ...prev, isSaving: false, error: errorMsg }));
     }
   };
 
   return (
     <div className="app-container">
+      {/* HEADER */}
       <header className="app-header">
-        {view === 'videos' && <button className="back-btn" onClick={handleBack}>← Geri</button>}
+        {view === 'videos' && <button className="back-btn" onClick={handleBack}>{t.back}</button>}
         
-        <h1>AltF10 Kütüphanesi</h1>
+        <h1>{t.appTitle}</h1>
 
         <div className="path-selector">
           <span className="current-path" title={libraryPath}>
             {libraryPath.length > 25 ? '...' + libraryPath.slice(-25) : libraryPath}
           </span>
-          <button className="change-folder-btn" onClick={handleChangeFolder} title="Klasör Değiştir">📂</button>
-          <button className="clear-cache-btn" onClick={() => setCacheModal(true)} title="Önbelleği Temizle">🗑️</button>
+          <button className="change-folder-btn" onClick={handleChangeFolder} title={t.changeFolder}>{t.changeFolder}</button>
+          <button className="clear-cache-btn" onClick={() => setCacheModal(true)} title={t.clearCacheTitle}>🗑️</button>
         </div>
       </header>
 
+      {/* MAIN CONTENT */}
       <main className="content">
         {view === 'categories' ? (
-          // ▼▼▼ KATEGORİ EKRANI ▼▼▼
           categories.length > 0 ? (
             <div className="category-grid">
               {categories.map((cat, i) => (
@@ -196,19 +268,17 @@ function App() {
               ))}
             </div>
           ) : (
-            // KATEGORİ YOKSA GÖSTERİLECEK MESAJ
             <div className="empty-state">
               <div className="empty-icon">📂</div>
-              <h3>Kategori Bulunamadı</h3>
+              <h3>{t.catNotFound}</h3>
               <p>
-                Seçilen konumda <strong>({libraryPath})</strong> herhangi bir klasör bulunamadı.
+                {t.catNotFoundDesc} <strong>({libraryPath})</strong>
                 <br/>
-                Lütfen sağ üstten video klasörünüzü seçin.
+                {t.selectFolder}
               </p>
             </div>
           )
         ) : (
-          // ▼▼▼ VİDEO EKRANI ▼▼▼
           videos.length > 0 ? (
             <div className="video-grid">
               {videos.map((vid, index) => {
@@ -234,22 +304,22 @@ function App() {
               })}
             </div>
           ) : (
-            // VİDEO YOKSA GÖSTERİLECEK MESAJ
             <div className="empty-state">
               <div className="empty-icon">📭</div>
-              <h3>Bu Klasör Boş</h3>
+              <h3>{t.folderEmptyTitle}</h3>
               <p>
-                <strong>{selectedCategory}</strong> klasöründe hiç video veya resim bulunamadı.
+                {t.folderEmptyDesc} <strong>{selectedCategory}</strong>
               </p>
             </div>
           )
         )}
       </main>
 
+      {/* FULLSCREEN PLAYER */}
       {selectedVideo && (
         <div className="player-overlay">
           <div className="player-header">
-             <button className="back-btn" onClick={closePlayer}>← Geri</button>
+             <button className="back-btn" onClick={closePlayer}>{t.back}</button>
              <h1>{selectedVideo.ad}</h1>
           </div>
           {selectedVideo.type === 'video' ? (
@@ -258,36 +328,56 @@ function App() {
         </div>
       )}
 
+      {/* RENAME MODAL */}
       {renameModal.isOpen && (
         <div className="modal-overlay">
           <div className="modal-box">
-            <h3>Yeniden Adlandır</h3>
+            <h3>{t.renameTitle}</h3>
             <input className="modal-input" value={renameModal.newName} onChange={(e) => setRenameModal({...renameModal, newName: e.target.value})} />
             {renameModal.error && <div className="modal-error">{renameModal.error}</div>}
             <div className="modal-actions">
-              <button className="btn-cancel" onClick={() => setRenameModal({...renameModal, isOpen: false})}>İptal</button>
-              <button className="btn-save" onClick={saveRename}>{renameModal.isSaving ? '...' : 'Kaydet'}</button>
+              <button className="btn-cancel" onClick={() => setRenameModal({...renameModal, isOpen: false})}>{t.cancel}</button>
+              <button className="btn-save" onClick={saveRename}>{renameModal.isSaving ? t.saving : t.save}</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* CACHE MODAL */}
       {cacheModal && (
         <div className="modal-overlay">
           <div className="modal-box" style={{width: '350px'}}>
             <h3 style={{color: '#ff6b6b', display:'flex', alignItems:'center', gap:'10px'}}>
-              <span>⚠️</span> Dikkat
+              <span>⚠️</span> {t.warning}
             </h3>
             <p style={{color: '#ddd', marginBottom:'20px', lineHeight:'1.5'}}>
-              Tüm önizleme resimleri silinecek. Onaylıyor musun?
+              {t.cacheWarning}
             </p>
             <div className="modal-actions">
-              <button className="btn-cancel" onClick={() => setCacheModal(false)}>İptal</button>
-              <button className="btn-save" style={{background: '#d32f2f'}} onClick={confirmClearCache}>Evet, Temizle</button>
+              <button className="btn-cancel" onClick={() => setCacheModal(false)}>{t.cancel}</button>
+              <button className="btn-save" style={{background: '#d32f2f'}} onClick={confirmClearCache}>{t.confirmClear}</button>
             </div>
           </div>
         </div>
       )}
+
+      {/* LANGUAGE SELECTOR (NEW) */}
+      <div className="language-selector">
+        <button 
+          className={`lang-btn ${lang === 'tr' ? 'active' : ''}`} 
+          onClick={() => changeLanguage('tr')}
+          title="Türkçe"
+        >
+          🇹🇷
+        </button>
+        <button 
+          className={`lang-btn ${lang === 'en' ? 'active' : ''}`} 
+          onClick={() => changeLanguage('en')}
+          title="English"
+        >
+          🇬🇧
+        </button>
+      </div>
 
       <video ref={hiddenVideoRef} style={{ display: 'none' }} onSeeked={handleVideoSeeked} onError={() => setIsProcessing(false)} crossOrigin="anonymous"/>
       <canvas ref={hiddenCanvasRef} width="320" height="180" style={{ display: 'none' }} />
