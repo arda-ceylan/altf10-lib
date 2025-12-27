@@ -1,16 +1,22 @@
-# React + Vite
+# AltF10 Kütüphanesi 🎮
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg) ![Electron](https://img.shields.io/badge/Electron-React-61DAFB.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-Currently, two official plugins are available:
+**AltF10 Kütüphanesi**, oyun kayıtlarını (DVR), klipleri ve ekran görüntülerini organize etmek, izlemek ve yönetmek için geliştirilmiş modern bir masaüstü uygulamasıdır. Özellikle **AV1** formatındaki yeni nesil kayıtları sorunsuz işlemek ve önizlemek için tasarlanmıştır.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🌟 Özellikler
 
-## React Compiler
+* **🛡️ AV1 & DVR Desteği:** FFmpeg çökmelerine son! `ffmpeg-static` yerine tarayıcı tabanlı "Frontend Capture" teknolojisi ile en zorlu formatlarda bile %100 kararlı thumbnail (önizleme) oluşturma.
+* **📂 Dinamik Kütüphane Yönetimi:** Video klasörünüzü program içinden seçebilir ve değiştirebilirsiniz.
+* **⚡ Akıllı Önbellek (Cache) Sistemi:** Oluşturulan resimler kaydedilir, tekrar tekrar yüklenmez. Gerektiğinde tek tuşla temizlenebilir.
+* **✏️ "Kilit Kıran" İsim Değiştirme:** Video arkada oynuyor olsa bile, sistem kaynaklarını otomatik serbest bırakarak "Dosya kullanımda" hatası almadan isim değiştirmenizi sağlar.
+* **🎥 Gömülü Oynatıcı:** Tam ekran video oynatıcı, ses hafızası (volume memory) ve modern arayüz.
+* **🖼️ Resim Görüntüleyici:** Sadece videoları değil, `.jpg` ve `.png` ekran görüntülerini de destekler.
+* **🎨 Modern Arayüz:** Karanlık tema (Dark Mode), responsive grid yapısı ve şık animasyonlar.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Kullanılan Teknolojiler
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* **Electron:** Masaüstü kapsayıcısı ve dosya sistemi (FS) işlemleri.
+* **React:** Kullanıcı arayüzü ve state yönetimi.
+* **Node.js:** Arka uç lojiği.
+* **HTML5 Canvas:** Video karelerini resme dönüştürmek için.
