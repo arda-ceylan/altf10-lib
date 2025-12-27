@@ -46,14 +46,12 @@ const TRANSLATIONS = {
 };
 
 function App() {
-  // --- STATE DEFINITIONS ---
   const [view, setView] = useState('categories');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [libraryPath, setLibraryPath] = useState('');
   
-  // Language State (Default: Turkish)
   const [lang, setLang] = useState(() => localStorage.getItem('appLanguage') || 'en');
-  const t = TRANSLATIONS[lang]; // Shortcut for current language text
+  const t = TRANSLATIONS[lang];
 
   const [categories, setCategories] = useState([]);
   const [videos, setVideos] = useState([]);
@@ -61,18 +59,15 @@ function App() {
   const [hoveredVideo, setHoveredVideo] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null); 
   
-  // Modals
   const [renameModal, setRenameModal] = useState({ isOpen: false, video: null, newName: '', isSaving: false, error: null });
   const [cacheModal, setCacheModal] = useState(false);
 
-  // Hidden Workers
   const hiddenVideoRef = useRef(null);
   const hiddenCanvasRef = useRef(null);
   const [processingQueue, setProcessingQueue] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const hoverTimeout = useRef(null); 
 
-  // Volume Memory
   const [volume, setVolume] = useState(() => {
     const saved = localStorage.getItem('appVolume');
     return saved !== null ? parseFloat(saved) : 0.5;
@@ -92,13 +87,11 @@ function App() {
     ipcRenderer.invoke('get-categories').then(setCategories).catch(console.error);
   };
 
-  // --- LANGUAGE HANDLER ---
   const changeLanguage = (selectedLang) => {
     setLang(selectedLang);
     localStorage.setItem('appLanguage', selectedLang);
   };
 
-  // --- FOLDER & NAVIGATION ---
   const handleChangeFolder = async () => {
     if (ipcRenderer) {
       const newPath = await ipcRenderer.invoke('select-folder');
@@ -133,7 +126,6 @@ function App() {
     }
   };
 
-  // --- CACHE CLEARING ---
   const confirmClearCache = async () => {
     setCacheModal(false);
     if (ipcRenderer) {
@@ -154,7 +146,19 @@ function App() {
 
   // --- MEDIA PLAYER HANDLERS ---
   const handleMediaClick = (media) => setSelectedVideo(media);
-  const closePlayer = () => setSelectedVideo(null);
+
+  const closePlayer = () => {
+    const activeVideo = document.querySelector('.full-video');
+    
+    if (activeVideo) {
+      activeVideo.pause();
+      activeVideo.removeAttribute('src');
+      activeVideo.load();
+    }
+
+    setSelectedVideo(null);
+  };
+
   const handleVolumeChange = (e) => {
     setVolume(e.target.volume);
     localStorage.setItem('appVolume', e.target.volume);
@@ -220,20 +224,16 @@ function App() {
     const { video, newName } = renameModal;
     if (!newName.trim()) return;
     setRenameModal(prev => ({ ...prev, isSaving: true }));
-    
     const result = await ipcRenderer.invoke('rename-file', { categoryName: selectedCategory, oldName: video.ad, newName: newName });
-
     if (result.success) {
       const fresh = await ipcRenderer.invoke('get-videos', selectedCategory);
       setVideos(fresh);
       setRenameModal(prev => ({ ...prev, isOpen: false }));
     } else {
       let errorMsg = result.error;
-
       if (errorMsg.includes("FILE_LOCKED") || errorMsg.includes("EBUSY")) {
         errorMsg = t.fileLocked;
       }
-
       setRenameModal(prev => ({ ...prev, isSaving: false, error: errorMsg }));
     }
   };
@@ -243,9 +243,7 @@ function App() {
       {/* HEADER */}
       <header className="app-header">
         {view === 'videos' && <button className="back-btn" onClick={handleBack}>{t.back}</button>}
-        
         <h1>{t.appTitle}</h1>
-
         <div className="path-selector">
           <span className="current-path" title={libraryPath}>
             {libraryPath.length > 25 ? '...' + libraryPath.slice(-25) : libraryPath}
@@ -361,23 +359,24 @@ function App() {
         </div>
       )}
 
-      {/* LANGUAGE SELECTOR (NEW) */}
-      <div className="language-selector">
-        <button 
-          className={`lang-btn ${lang === 'tr' ? 'active' : ''}`} 
-          onClick={() => changeLanguage('tr')}
-          title="Türkçe"
-        >
-          🇹🇷
-        </button>
-        <button 
-          className={`lang-btn ${lang === 'en' ? 'active' : ''}`} 
-          onClick={() => changeLanguage('en')}
-          title="English"
-        >
-          🇬🇧
-        </button>
-      </div>
+      {view === 'categories' && (
+        <div className="language-selector">
+          <button 
+            className={`lang-btn ${lang === 'tr' ? 'active' : ''}`} 
+            onClick={() => changeLanguage('tr')}
+            title="Türkçe"
+          >
+            🇹🇷
+          </button>
+          <button 
+            className={`lang-btn ${lang === 'en' ? 'active' : ''}`} 
+            onClick={() => changeLanguage('en')}
+            title="English"
+          >
+            🇬🇧
+          </button>
+        </div>
+      )}
 
       <video ref={hiddenVideoRef} style={{ display: 'none' }} onSeeked={handleVideoSeeked} onError={() => setIsProcessing(false)} crossOrigin="anonymous"/>
       <canvas ref={hiddenCanvasRef} width="320" height="180" style={{ display: 'none' }} />
