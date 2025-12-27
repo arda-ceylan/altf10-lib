@@ -27,7 +27,7 @@ Follow these steps to develop or run this project on your computer:
 
 ### 1. Clone the Project
 ```bash
-git clone [https://github.com/YOUR_USERNAME/altf10-library.git](https://github.com/YOUR_USERNAME/altf10-library.git)
+git clone [https://github.com/arda-ceylan/altf10-library.git](https://github.com/arda-ceylan/altf10-library.git)
 cd altf10-library
 ```
 
@@ -45,7 +45,7 @@ npm run electron:dev
 ### 4. Build the Application
 Creates an .exe file for Windows.
 ```bash
-npm run electron:dev
+npm run electron:build
 ```
 
 ## ⚙️ How It Works? (Technical Detail)
