@@ -1,7 +1,7 @@
 {
   "name": "altf10-lib",
   "private": true,
-  "version": "0.0.7",
+  "version": "1.0.0",
   "main": "electron.js",
   "description": "AltF10 Kütüphanesi",
   "author": "arda-ceylan",
