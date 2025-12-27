@@ -52,7 +52,7 @@ npm run electron:build
 **Thumbnail Generation**
 Traditional methods using FFmpeg often crashed with "Code 69" or "Heap Corruption" errors, especially with AV1 encoded game recordings containing corrupt headers.
 
-### This project implements a **"Frontend Capture"** method:
+### 🎥 This project implements a **"Frontend Capture"** method:
 
 * The application loads the video into an invisible <video> tag in the background.
 
@@ -68,8 +68,7 @@ This ensures thumbnails are generated smoothly in every scenario where Chrome ca
 
 
 
-**The "Lock-Breaking" Mechanism**
-### To allow renaming files that are currently "active" in the DOM:
+### ✏️ The "Lock-Breaking" Mechanism**
 
 * The app triggers a global pause on all `<video>` elements.
 
