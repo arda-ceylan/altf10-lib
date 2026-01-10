@@ -7,6 +7,10 @@
 ## 🌟 Features
 
 * **🛡️ AV1 & DVR Support:** No more FFmpeg crashes! Instead of `ffmpeg-static`, it uses browser-based "Frontend Capture" technology to generate 100% stable thumbnails (previews) even for the most challenging formats.
+* **⚡ Smart Video Compression:** Compress your videos to save space without losing quality.
+    * **Multi-Codec Support:** **AV1**, **HEVC**, **H.264**, and **x264** (CPU).
+    * **Smart History:** The app remembers compressed files and skips them in future batch processes to prevent re-compression.
+    * **Single or Batch:** Compress a specific video or an entire folder at once.
 * **📂 Dynamic Library Management:** You can select and change your video folder directly within the application.
 * **⚡ Smart Cache System:** Generated images are saved locally and are not reloaded repeatedly. Can be cleared with a single click when needed.
 * **✏️ "Lock-Breaking" Renaming:** Allows you to rename files without getting "File in use" errors by automatically releasing system resources, even if the video is playing in the background.
@@ -18,6 +22,7 @@
 
 * **Electron:** Desktop container and file system (FS) operations.
 * **React:** User interface and state management.
+* **FFmpeg:** Used strictly for video compression and optimization tasks.
 * **Node.js:** Backend logic.
 * **HTML5 Canvas:** For converting video frames into images.
 
@@ -78,10 +83,26 @@ This ensures thumbnails are generated smoothly in every scenario where Chrome ca
 
 * The fs.rename operation is then executed safely.
 
+### Smart Compression Pipeline
+
+* **Engine:** Uses ffmpeg spawned as a child process.
+* **Hardware Acceleration:** Defaults to NVENC (av1_nvenc, hevc_nvenc) for NVIDIA cards for maximum speed.
+* **Process:**
+    * Checks compress_history.json to see if the file was already processed.
+
+    * Calculates dynamic bitrate/quality based on resolution (1080p / 1440p / 2160p).
+
+    * Compresses to a temporary folder (temp/).
+
+    * On success, replaces the original file and updates the history log.
+
+    * Cleanup: Automatically deletes temporary files and folders after the operation.
+
 ## 📂 Project Structure
 
 ```
 altf10-library/
+├── bin/                 # FFmpeg binary files
 ├── public/              # Static assets (icons, manifest)
 ├── src/
 │   ├── App.jsx          # Main application logic & state management
