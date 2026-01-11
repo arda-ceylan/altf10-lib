@@ -32,8 +32,8 @@ Follow these steps to develop or run this project on your computer:
 
 ### 1. Clone the Project
 ```bash
-git clone https://github.com/arda-ceylan/altf10-library.git
-cd altf10-library
+git clone https://github.com/arda-ceylan/altf10-lib.git
+cd altf10-lib
 ```
 
 ### 2. Install Dependencies
