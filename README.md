@@ -73,7 +73,7 @@ This ensures thumbnails are generated smoothly in every scenario where Chrome ca
 
 
 
-### ✏️ The "Lock-Breaking" Mechanism**
+### ✏️ The "Lock-Breaking" Mechanism
 
 * The app triggers a global pause on all `<video>` elements.
 
