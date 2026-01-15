@@ -116,6 +116,9 @@ altf10-library/
 ## 📝 License
 This project is open-source and available under the MIT License.
 
+* **AltF10 Library** source code is licensed under the **MIT License**.
+* This software uses **FFmpeg** for video processing. FFmpeg is licensed under the **LGPLv2.1** and **GPLv2**.
+
 ## 🖼️ Some Screenshots
 ![Main Screen](assets/ss.png)
 
