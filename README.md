@@ -1,6 +1,6 @@
 # AltF10 Library 🎮
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue.svg) ![Electron](https://img.shields.io/badge/Electron-React-61DAFB.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Version](https://img.shields.io/badge/version-1.1.1-blue.svg) ![Electron](https://img.shields.io/badge/Electron-React-61DAFB.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 **AltF10 Library** is a modern desktop application developed to organize, watch, and manage game recordings (DVR), clips, and screenshots. It is specifically designed to seamlessly process and preview next-generation recordings in **AV1** format.
 

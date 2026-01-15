@@ -1,7 +1,7 @@
 {
   "name": "altf10-lib",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "electron.js",
   "description": "AltF10 Library",
   "author": "Arda Ceylan",
