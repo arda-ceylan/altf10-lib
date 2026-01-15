@@ -6,7 +6,7 @@
 
 ## 🌟 Features
 
-* **🛡️ AV1 & DVR Support:** No more FFmpeg crashes! Instead of `ffmpeg-static`, it uses browser-based "Frontend Capture" technology to generate 100% stable thumbnails (previews) even for the most challenging formats.
+* **🛡️ AV1 & DVR Support:** It uses browser-based "Frontend Capture" technology to generate 100% stable thumbnails (previews) even for the most challenging formats.
 * **⚡ Smart Video Compression:** Compress your videos to save space without losing quality.
     * **Multi-Codec Support:** **AV1**, **HEVC**, **H.264**, and **x264** (CPU).
     * **Smart History:** The app remembers compressed files and skips them in future batch processes to prevent re-compression.
@@ -14,9 +14,9 @@
 * **📂 Dynamic Library Management:** You can select and change your video folder directly within the application.
 * **⚡ Smart Cache System:** Generated images are saved locally and are not reloaded repeatedly. Can be cleared with a single click when needed.
 * **✏️ "Lock-Breaking" Renaming:** Allows you to rename files without getting "File in use" errors by automatically releasing system resources, even if the video is playing in the background.
-* **🎥 Embedded Player:** Full-screen video player, volume memory, and a modern interface.
+* **🎥 Embedded Player:** Full-screen video player and a modern interface.
 * **🖼️ Image Viewer:** Supports not only videos but also `.jpg` and `.png` screenshots.
-* **🎨 Modern Interface:** Dark Mode, responsive grid structure, and stylish animations.
+* **🎨 Modern Interface:** Dark Mode, responsive grid structure and stylish animations.
 
 ## 🛠️ Technologies Used
 
