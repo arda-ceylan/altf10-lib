@@ -494,7 +494,11 @@ function App() {
             <div className="empty-state">
               <div className="empty-icon">📭</div>
               <h3>{t.folderEmptyTitle}</h3>
-              <p>{t.folderEmptyDesc} <strong>{selectedCategory}</strong></p>
+              {lang === 'en' ? (
+                <p>{t.folderEmptyDesc} <strong>{selectedCategory}</strong></p>
+              ) : (
+                <p><strong>{selectedCategory}</strong> {t.folderEmptyDesc}</p>
+              )}
             </div>
           )
         )}
