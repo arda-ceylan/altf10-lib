@@ -260,6 +260,50 @@ ipcMain.on('cancel-compression', () => {
   }
 });
 
+ipcMain.handle('mark-as-compressed', async (event, { scope, categoryName, singleFilePath }) => {
+  try {
+    loadHistory();
+    let filesToProcess = [];
+
+    if (scope === 'single' && singleFilePath) {
+      if (fs.existsSync(singleFilePath)) {
+        filesToProcess.push(singleFilePath);
+      }
+    } 
+    else if (scope === 'category' && categoryName) {
+      const dirPath = path.join(currentLibraryPath, categoryName);
+      if (fs.existsSync(dirPath)) {
+        const files = fs.readdirSync(dirPath).filter(f => f.endsWith('.mp4') || f.endsWith('.mkv'));
+        files.forEach(f => filesToProcess.push(path.join(dirPath, f)));
+      }
+    } else {
+      const categories = fs.readdirSync(currentLibraryPath, { withFileTypes: true }).filter(d => d.isDirectory());
+      for (const cat of categories) {
+        const dirPath = path.join(currentLibraryPath, cat.name);
+        const files = fs.readdirSync(dirPath).filter(f => f.endsWith('.mp4') || f.endsWith('.mkv'));
+        files.forEach(f => filesToProcess.push(path.join(dirPath, f)));
+      }
+    }
+
+    if (filesToProcess.length === 0) return { success: true, count: 0 };
+
+    let addedCount = 0;
+    filesToProcess.forEach(filePath => {
+      if (!compressionHistory.includes(filePath)) {
+        compressionHistory.push(filePath);
+        addedCount++;
+      }
+    });
+    
+    fs.writeFileSync(historyPath, JSON.stringify(compressionHistory));
+
+    return { success: true, count: addedCount };
+
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
 ipcMain.handle('compress-videos', async (event, { scope, categoryName, codecType, singleFilePath }) => {
   try {
     loadHistory();

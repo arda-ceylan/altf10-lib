@@ -47,7 +47,12 @@ const TRANSLATIONS = {
     preparing: "Hazırlanıyor...",
     errorTitle: "Hata",
     unknownError: "Bilinmeyen bir hata oluştu.",
-    okeyBtn: "Tamam"
+    okeyBtn: "Tamam",
+    excludeBtn: "🚫 Sıkıştırmanın Dışında Bırak",
+    excludeTitle: "İşaretleme Başarılı",
+    excludeTooltip: "Seçili videoları 'yapıldı' olarak işaretler ve işlem dışı bırakır.",
+    excludeSuccessMsg: "video sıkıştırma geçmişine eklendi.",
+    excludeZeroMsg: "Seçilen videolar zaten geçmiş listesinde mevcut."
   },
   en: {
     appTitle: "AltF10 Library",
@@ -91,7 +96,12 @@ const TRANSLATIONS = {
     preparing: "Preparing...",
     errorTitle: "Error",
     unknownError: "An unknown error occurred.",
-    okeyBtn: "Okey"
+    okeyBtn: "Okey",
+    excludeBtn: "🚫 Exclude from Compression",
+    excludeTitle: "Marking Successful",
+    excludeTooltip: "Marks selected videos as 'done' and excludes them.",
+    excludeSuccessMsg: "videos added to compression history.",
+    excludeZeroMsg: "Selected videos are already in the history list."
   }
 };
 
@@ -114,6 +124,8 @@ function App() {
   
   const [renameModal, setRenameModal] = useState({ isOpen: false, video: null, newName: '', isSaving: false, error: null });
   const [cacheModal, setCacheModal] = useState(false);
+  const [cacheClearedModal, setCacheClearedModal] = useState(false);
+  const [excludeResultModal, setExcludeResultModal] = useState({ isOpen: false, count: 0 });
   
   // Compression States
   const [settingsModal, setSettingsModal] = useState(false);
@@ -218,7 +230,7 @@ function App() {
     setCacheModal(false);
     if (ipcRenderer) {
       await ipcRenderer.invoke('clear-thumbnail-cache');
-      alert(t.cacheCleared);
+      setCacheClearedModal(true);
       if (view === 'videos' && selectedCategory) {
         setVideos(prev => prev.map(v => ({...v, thumbnail_url: null})));
         setProcessingQueue([]);
@@ -317,6 +329,31 @@ function App() {
 
     setSingleCompressTarget(video);
     setSettingsModal(true);
+  };
+
+  const handleExclude = async () => {
+    let scope = 'all';
+    let singleFilePath = null;
+
+    if (singleCompressTarget) {
+        scope = 'single';
+        singleFilePath = singleCompressTarget.fullPath;
+    } else if (view === 'videos' && selectedCategory) {
+        scope = 'category';
+    }
+
+    const result = await ipcRenderer.invoke('mark-as-compressed', { 
+      scope, 
+      categoryName: selectedCategory, 
+      singleFilePath 
+    });
+
+    if (result.success) {
+      setSettingsModal(false);
+      setExcludeResultModal({ isOpen: true, count: result.count });
+    } else {
+      alert(t.errorTitle + ": " + result.error);
+    }
   };
 
   const startCompression = async () => {
@@ -545,6 +582,20 @@ function App() {
         </div>
       )}
 
+      {cacheClearedModal && (
+        <div className="modal-overlay">
+          <div className="modal-box" style={{width: '350px'}}>
+            <h3 style={{color: '#4caf50', display:'flex', alignItems:'center', gap:'10px'}}>
+              <span>✅</span> {t.compressSuccess}
+            </h3>
+            <p style={{color: '#ddd', marginBottom:'20px', lineHeight:'1.5'}}>{t.cacheCleared}</p>
+            <div className="modal-actions">
+              <button className="btn-save" onClick={() => setCacheClearedModal(false)}>{t.okeyBtn}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {settingsModal && (
         <div className="modal-overlay">
           <div className="modal-box">
@@ -557,9 +608,15 @@ function App() {
               <option value="CPU">x264</option>
             </select>
             <p style={{fontSize:'12px', color:'#888', marginTop:'10px'}}>{t.codecNote}</p>
-            <div className="modal-actions" style={{marginTop:'20px'}}>
-              <button className="btn-cancel" onClick={() => setSettingsModal(false)}>{t.cancel}</button>
-              <button className="compress-btn" onClick={startCompression}>{t.startBtn}</button>
+            <div className="modal-actions" style={{marginTop:'20px', justifyContent: 'space-between'}}>
+              <button className="btn-cancel" style={{marginRight: 'auto'}} onClick={() => setSettingsModal(false)}>{t.cancel}</button>
+              
+              <div style={{display:'flex', gap:'10px'}}>
+                <button className="btn-exclude" onClick={handleExclude} title={t.excludeTooltip}>
+                    {t.excludeBtn}
+                </button>
+                <button className="compress-btn" onClick={startCompression}>{t.startBtn}</button>
+              </div>
             </div>
           </div>
         </div>
@@ -605,6 +662,29 @@ function App() {
               <button className="btn-cancel" onClick={() => setDeleteModal({ isOpen: false, video: null })}>{t.cancel}</button>
               <button className="btn-save" style={{background: '#d32f2f', color: 'white'}} onClick={confirmDelete}>
                 {deleteModal.isDeleting ? t.deleting : t.deleteBtn}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {excludeResultModal.isOpen && (
+        <div className="modal-overlay">
+          <div className="modal-box" style={{width: '400px', textAlign: 'center'}}>
+            <h3 style={{color: '#4caf50', display:'flex', justifyContent:'center', alignItems:'center', gap:'10px'}}>
+               <span>✅</span> {t.excludeTitle}
+            </h3>
+            
+            <p style={{color: '#ddd', margin: '20px 0', lineHeight: '1.5'}}>
+              {excludeResultModal.count > 0 
+                ? <><strong style={{color:'#fff'}}>{excludeResultModal.count}</strong> {t.excludeSuccessMsg}</>
+                : t.excludeZeroMsg
+              }
+            </p>
+
+            <div className="modal-actions" style={{justifyContent: 'center'}}>
+              <button className="btn-save" onClick={() => setExcludeResultModal({ isOpen: false, count: 0 })}>
+                {t.okeyBtn}
               </button>
             </div>
           </div>
