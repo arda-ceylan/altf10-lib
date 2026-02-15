@@ -117,6 +117,9 @@ altf10-library/
 * This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 * This project bundles **FFmpeg** binaries for video processing. FFmpeg is a trademark of Fabrice Bellard, originator of the FFmpeg project, and is licensed under the **LGPLv2.1** (or **GPLv2** depending on the build). For more information, visit [ffmpeg.org](https://ffmpeg.org).
 
+## Privacy
+This application works entirely offline and does not collect or transmit any user data.
+
 ## 🖼️ Some Screenshots
 ![Main Screen](assets/ss.png)
 
