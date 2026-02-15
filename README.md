@@ -53,7 +53,7 @@ Creates an .exe file for Windows.
 npm run electron:build
 ```
 
-## ⚙️ How It Works? (Technical Detail)
+## ⚙️ How It Works (Technical Detail)
 **Thumbnail Generation**
 Traditional methods using FFmpeg often crashed with "Code 69" or "Heap Corruption" errors, especially with AV1 encoded game recordings containing corrupt headers.
 
