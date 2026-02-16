@@ -2,14 +2,16 @@ name: Build AltF10 Library
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   build:
     runs-on: windows-latest
 
     permissions:
-      contents: read
-      packages: write
+      contents: write
 
     steps:
     - name: Check out Git repository
@@ -19,12 +21,51 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 22
-        cache: 'npm'
+        # cache: 'npm'
 
     - name: Install Dependencies
       run: npm ci
+
+    - name: Download FFmpeg and FFprobe
+      shell: powershell
+      run: |
+        New-Item -ItemType Directory -Force -Path "bin"
+        
+        $url = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-essentials.7z"
+        $output = "ffmpeg.7z"
+        
+        Write-Host "Downloading FFmpeg master build..."
+        Invoke-WebRequest -Uri $url -OutFile $output
+        
+        Write-Host "Extracting from 7z archive..."
+        7z x $output -o "ffmpeg_temp" -y
+        
+        Write-Host "Moving files..."
+
+        $extractedFolder = Get-ChildItem -Path "ffmpeg_temp" -Directory | Select-Object -First 1
+        $binPath = "$($extractedFolder.FullName)\bin"
+        
+        Move-Item -Path "$binPath\ffmpeg.exe" -Destination "bin\ffmpeg.exe" -Force
+        Move-Item -Path "$binPath\ffprobe.exe" -Destination "bin\ffprobe.exe" -Force
+        
+        Write-Host "Cleaning up..."
+        Remove-Item $output
+        Remove-Item "ffmpeg_temp" -Recurse -Force
+        
+        Write-Host "FFmpeg is ready"
       
     - name: Build Electron App (Unsigned)
       run: npm run electron:build
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Draft Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: dist/*.exe
+        draft: true
+        prerelease: false
+        generate_release_notes: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
