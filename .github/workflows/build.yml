@@ -38,7 +38,7 @@ jobs:
         Invoke-WebRequest -Uri $url -OutFile $output
         
         Write-Host "Extracting from 7z archive..."
-        7z x $output -o "ffmpeg_temp" -y
+        7z x $output -o"ffmpeg_temp" -y
         
         Write-Host "Moving files..."
 
