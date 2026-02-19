@@ -114,8 +114,9 @@ altf10-library/
 ```
 
 ## 📝 License
-* This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
-* This project bundles **FFmpeg** binaries for video processing. FFmpeg is a trademark of Fabrice Bellard, originator of the FFmpeg project, and is licensed under the **LGPLv2.1** (or **GPLv2** depending on the build). For more information, visit [ffmpeg.org](https://ffmpeg.org).
+* This project is licensed under the Apache License 2.0 - see the [LICENSE](license.txt) file for details.
+* This project utilizes pre-compiled **FFmpeg** binaries for video processing. Because the specific builds used (such as Gyan.dev essentials) include GPL-licensed libraries like x264 and x265, the FFmpeg binaries are distributed under the **GPLv3** license. 
+* FFmpeg is a trademark of Fabrice Bellard, originator of the FFmpeg project. The use of FFmpeg as an external executable does not affect the Apache 2.0 license of the AltF10 Library. For more information and source code, visit [ffmpeg.org](https://ffmpeg.org).
 
 ## Privacy
 This application works entirely offline and does not collect or transmit any user data.
