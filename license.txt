@@ -207,6 +207,11 @@
 
 FFmpeg
 
-This software uses libraries from the FFmpeg project (http://ffmpeg.org). These binaries are licensed under the LGPLv2.1.
-FFmpeg is a trademark of Fabrice Bellard, originator of the FFmpeg project. The source code for FFmpeg can be found on the ffmpeg.org website.
-Your use of the FFmpeg binaries is subject to the terms of the GNU Lesser General Public License version 2.1.
+This software uses pre-compiled binaries from the FFmpeg project (http://ffmpeg.org). 
+Because these specific binaries are compiled with GPL-licensed libraries (such as libx264 and libx265), the binaries themselves are distributed under the terms of the GNU General Public License version 3.0 (GPLv3).
+
+FFmpeg is a trademark of Fabrice Bellard, originator of the FFmpeg project. 
+The source code for FFmpeg can be found on the official website: https://ffmpeg.org/download.html
+The build scripts and configurations for the Windows binaries used in this project can be found at: https://www.gyan.dev/ffmpeg/builds/
+
+Your use of the FFmpeg binaries provided with this software is subject to the terms of the GPLv3. This does not affect the Apache 2.0 license of the AltF10 Library source code, as FFmpeg is used as a separate, external executable.
