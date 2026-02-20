@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import './App.css';
+import AboutModal from './AboutModal';
 
 const { ipcRenderer } = window.require ? window.require('electron') : { ipcRenderer: null };
 
@@ -33,8 +34,6 @@ const TRANSLATIONS = {
     deleteConfirm: "Bu dosyayı kalıcı olarak silmek istediğinize emin misiniz?",
     deleteBtn: "🗑️ Sil",
     deleting: "Siliniyor...",
-    
-    // Sıkıştırma Çevirileri
     compressBtn: "⚡ Sıkıştır",
     compressTitle: "Sıkıştırma İşlemi",
     compressSettingsTitle: "Sıkıştırma Ayarları",
@@ -57,7 +56,16 @@ const TRANSLATIONS = {
     excludeTitle: "İşaretleme Başarılı",
     excludeTooltip: "Seçili videoları 'yapıldı' olarak işaretler ve işlem dışı bırakır.",
     excludeSuccessMsg: "video sıkıştırma geçmişine eklendi.",
-    excludeZeroMsg: "Seçilen videolar zaten geçmiş listesinde mevcut."
+    excludeZeroMsg: "Seçilen videolar zaten geçmiş listesinde mevcut.",
+    aboutTitle: "AltF10 Library Hakkında",
+    version: "Sürüm",
+    developer: "Geliştirici",
+    githubRepo: "GitHub Deposu",
+    licenseTitle: "Lisans Bilgileri",
+    licenseApache: "Bu proje Apache License 2.0 altında lisanslanmıştır.",
+    licenseFFmpeg: "Bu yazılım, video işleme için önceden derlenmiş FFmpeg dosyalarını kullanır. Bu dosyalar x264/x265 gibi kütüphaneler içerdiğinden GPLv3 lisansına tabidir. FFmpeg, Fabrice Bellard'ın tescilli markasıdır.",
+    closeBtn: "Kapat",
+    aboutBtnTitle: "Hakkında"
   },
   en: {
     appTitle: "AltF10 Library",
@@ -82,8 +90,6 @@ const TRANSLATIONS = {
     deleteConfirm: "Are you sure you want to delete this file permanently?",
     deleteBtn: "🗑️ Delete",
     deleting: "Deleting...",
-    
-    // Compression Translations
     compressBtn: "⚡ Compress",
     compressTitle: "Compression Process",
     compressSettingsTitle: "Compression Settings",
@@ -106,7 +112,16 @@ const TRANSLATIONS = {
     excludeTitle: "Marking Successful",
     excludeTooltip: "Marks selected videos as 'done' and excludes them.",
     excludeSuccessMsg: "videos added to compression history.",
-    excludeZeroMsg: "Selected videos are already in the history list."
+    excludeZeroMsg: "Selected videos are already in the history list.",
+    aboutTitle: "About AltF10 Library",
+    version: "Version",
+    developer: "Developer",
+    githubRepo: "GitHub Repository",
+    licenseTitle: "License Information",
+    licenseApache: "This project is licensed under the Apache License 2.0.",
+    licenseFFmpeg: "This software uses pre-compiled FFmpeg binaries for video processing. Since these specific binaries include GPL-licensed libraries like x264/x265, they are subject to the GPLv3 license. FFmpeg is a trademark of Fabrice Bellard.",
+    closeBtn: "Close",
+    aboutBtnTitle: "About"
   }
 };
 
@@ -153,6 +168,8 @@ function App() {
     const saved = localStorage.getItem('appVolume');
     return saved !== null ? parseFloat(saved) : 0.5;
   });
+
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   // --- INITIALIZATION ---
   useEffect(() => {
@@ -480,6 +497,7 @@ function App() {
           <button className="change-folder-btn" onClick={handleChangeFolder} title={t.changeFolder}>📂</button>
           <button className="clear-cache-btn" onClick={() => setCacheModal(true)} title={t.clearCacheTitle}>🗑️</button>
           <button className="compress-btn" onClick={handleCompress} title={t.compressBtn}>⚡</button>
+          <button className="about-btn" onClick={() => setIsAboutOpen(true)} title={t.aboutBtnTitle}><svg xmlns="http://www.w3.org/2000/svg" height="19px" width="19px" viewBox="0 -960 960 960" fill="#0078d4"><path d="M423.5-703.5Q400-727 400-760t23.5-56.5Q447-840 480-840t56.5 23.5Q560-793 560-760t-23.5 56.5Q513-680 480-680t-56.5-23.5ZM420-120v-480h120v480H420Z"/></svg></button>
         </div>
       </header>
 
@@ -709,6 +727,13 @@ function App() {
 
       <video ref={hiddenVideoRef} style={{ display: 'none' }} onSeeked={handleVideoSeeked} onError={() => setIsProcessing(false)} crossOrigin="anonymous"/>
       <canvas ref={hiddenCanvasRef} width="320" height="180" style={{ display: 'none' }} />
+
+      <AboutModal
+        isOpen={isAboutOpen} 
+        onClose={() => setIsAboutOpen(false)}
+        language={lang}
+        t={t}
+      />
     </div>
   );
 }

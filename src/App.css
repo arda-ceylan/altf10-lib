@@ -61,7 +61,7 @@ body {
   text-overflow: ellipsis;
 }
 
-.change-folder-btn, .clear-cache-btn, .compress-btn {
+.change-folder-btn, .clear-cache-btn, .compress-btn, .about-btn {
   background: #333;
   color: #fff;
   border: 1px solid #444;
@@ -79,6 +79,7 @@ body {
 .clear-cache-btn:hover { background: #4a1818; color: #ff6b6b; border-color: #ff6b6b; }
 .compress-btn { color: #ffd700; }
 .compress-btn:hover { background: #4a4018; border-color: #ffd700; box-shadow: 0 0 8px rgba(255, 215, 0, 0.3); }
+.about-btn:hover { background: #19184a; border-color: #338cff; }
 
 .back-btn {
   background: transparent;
