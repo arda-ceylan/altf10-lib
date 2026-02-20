@@ -63,10 +63,10 @@ let ffmpegPath, ffprobePath;
 
 if (app.isPackaged) {
   const appPath = path.dirname(app.getPath('exe'));
+  const ext = process.platform === 'win32' ? '.exe' : '';
   
-  ffmpegPath = path.join(appPath, 'ffmpeg.exe');
-  ffprobePath = path.join(appPath, 'ffprobe.exe');
-  
+  ffmpegPath = path.join(appPath, `ffmpeg${ext}`);
+  ffprobePath = path.join(appPath, `ffprobe${ext}`);
 } else {
   try {
     ffmpegPath = require('ffmpeg-static');
