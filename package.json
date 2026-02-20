@@ -44,6 +44,7 @@
       "dist/**/*",
       "electron.js",
       "icon.ico",
+      "icon.png",
       "package.json"
     ],
     "win": {
@@ -71,6 +72,7 @@
     "linux": {
       "target": ["AppImage"],
       "category": "Video",
+      "icon": "icon.png",
       "extraFiles": [
         {
           "from": "bin",
