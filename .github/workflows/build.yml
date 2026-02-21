@@ -63,7 +63,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: dist/*.exe
+        files: release/*.exe
         draft: true
         prerelease: false
         generate_release_notes: false
@@ -104,7 +104,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: dist/*.AppImage
+        files: release/*.AppImage
         draft: true
         generate_release_notes: false
       env:
