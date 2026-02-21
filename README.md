@@ -105,6 +105,7 @@ altf10-library/
 ├── bin/                 # FFmpeg binary files
 ├── public/              # Static assets (icons, manifest)
 ├── src/
+│   ├── AboutModal.jsx   # About section
 │   ├── App.jsx          # Main application logic & state management
 │   ├── App.css          # Global styles, grid layout, animations
 │   └── main.jsx         # React entry point
