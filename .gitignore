@@ -1,4 +1,5 @@
 /node_modules
 /release
+/dist
 /bin/ffmpeg.exe
 /bin/ffprobe.exe
